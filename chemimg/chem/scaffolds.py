@@ -7,7 +7,7 @@ import cairosvg
 import io
 import os
 
-def draw_transparent_mol(ismiles, fo, increase_factor=100, scaffold_only=False, border_width=1):
+def draw_transparent_mol(ismiles, fo, increase_factor=100, scaffold_only=False, border_width=1,verbose=False):
     # Generate molecule
     mol = Chem.MolFromSmiles(ismiles)
     if not mol:
@@ -66,7 +66,8 @@ def draw_transparent_mol(ismiles, fo, increase_factor=100, scaffold_only=False, 
     # Save the PNG
     os.makedirs(os.path.dirname(fo), exist_ok=True)
     image.save(fo, "PNG")
-    print("Saved (transparent):", fo)
+    if verbose:
+        print("Saved (transparent):", fo)
 
 
 def draw_transparent_mol_v2024(ismiles, fo,increase_factor=100,scaffold_only=False,border_width=1):
