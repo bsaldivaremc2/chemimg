@@ -1,5 +1,7 @@
 # Chemimg
 
+## Overview  
+
 A very light package that makes Rrkit's molecule drawing simple for quick usage.
 It comes with 4 main core attributes.
 * With one line of code create a 2D representation of a molecule from its SMILES representation.
@@ -13,3 +15,31 @@ It comes with 4 main core attributes.
 * Do all these 3 easily and also for only the molecule scaffolds.
 ![](imgs/collage_scaffold_red.png)
 
+## Installation
+
+This project relies on RDKit and Cairo, which are best installed via conda.
+
+### With conda
+
+```bash
+conda env create -f environment.yml  
+conda activate chemimg310
+pip install .
+```
+### Install from GitHub (pip only)
+
+> ⚠️ RDKit and Cairo must be installed separately.
+> This method is recommended only if you already have them available.
+
+```bash
+pip install git+https://github.com/bsaldivaremc2/chemimg.git
+```
+
+### Install from PyPI
+
+```bash
+pip install chemimg
+```
+
+## Usage  
+Check **demo.ipynb** for examples.
