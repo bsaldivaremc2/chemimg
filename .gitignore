@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+build/
+chemimg.egg-info/
 TODO.txt

@@ -1,11 +1,25 @@
+import io
+import os
+
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from rdkit.Chem.Draw import rdMolDraw2D
 from PIL import Image
-import cairosvg
-import io
-import os
+
+try:
+    import cairosvg
+except Exception as e:
+    raise RuntimeError(
+        "chemimg requires Cairo (native library) to function.\n\n"
+        "On Windows, install via conda:\n"
+        "  conda install -c conda-forge cairo\n"
+        "  pip install cairosvg\n\n"
+        "On Linux:\n"
+        "  sudo apt install libcairo2\n\n"
+        "On macOS:\n"
+        "  brew install cairo\n"
+    ) from e
 
 def draw_transparent_mol(ismiles, fo, increase_factor=100, scaffold_only=False, border_width=1,verbose=False):
     # Generate molecule

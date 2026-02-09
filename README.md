@@ -26,17 +26,17 @@ conda env create -f environment.yml
 conda activate chemimg310
 pip install .
 ```
-### Install from GitHub (pip only)
-
-> ⚠️ RDKit and Cairo must be installed separately.
-> This method is recommended only if you already have them available.
+### Other ways   
+**Cairo must be installed separately.**  
+#### System Requirements (Required for CairoSVG)
+- **Windows**: Install the [GTK Runtime](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases).  
+- **macOS**: `brew install cairo`  
+- **Linux**: `sudo apt-get install libcairo2`  
 
 ```bash
 pip install git+https://github.com/bsaldivaremc2/chemimg.git
 ```
-
 ### Install from PyPI
-
 ```bash
 pip install chemimg
 ```
