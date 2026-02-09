@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chemimg"
+version = "2026.02.08"
+description = "Draw 2d molecule representation easily. Change colors, increase size, make a background cover"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Bryan Saldivar", email = "bsaldivar.emc2@gmail.com" }
+]
+
+dependencies = [
+    "numpy",
+    "tqdm",
+    "Pillow",
+    "matplotlib",
+    "cairosvg",
+    "rdkit",
+]
+
+[project.urls]
+Homepage = "https://github.com/bsaldivaremc2/chemimg"
+Repository = "https://github.com/bsaldivaremc2/chemimg"
+Issues = "https://github.com/bsaldivaremc2/chemimg/issues"
+
+[tool.setuptools]
+packages = { find = {} }
+
