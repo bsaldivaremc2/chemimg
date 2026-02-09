@@ -1,5 +1,6 @@
 import io
 import os
+from typing import Optional
 
 from rdkit import Chem
 from rdkit.Chem import rdDepictor
@@ -21,67 +22,118 @@ except Exception as e:
         "  brew install cairo\n"
     ) from e
 
-def draw_transparent_mol(ismiles, fo, increase_factor=100, scaffold_only=False, border_width=1,verbose=False):
-    # Generate molecule
+
+def draw_transparent_mol(
+    ismiles: str,
+    fo: str,
+    increase_factor: int = 100,
+    scaffold_only: bool = False,
+    border_width: int = 1,
+    verbose: bool = False,
+) -> Optional[str]:
+    """
+    Render a molecule from a SMILES string as a transparent PNG image.
+
+    The molecule is drawn using RDKit's SVG drawer, converted to PNG in memory,
+    and post-processed to ensure a fully transparent background.
+
+    Parameters
+    ----------
+    ismiles : str
+        Input SMILES string describing the molecule.
+    fo : str
+        Output file path where the PNG image will be saved.
+    increase_factor : int, default=100
+        Scaling factor converting RDKit 2D coordinates to pixel dimensions.
+        Larger values produce higher-resolution images.
+    scaffold_only : bool, default=False
+        If True, extract the Murcko scaffold and make it generic before drawing.
+    border_width : int, default=1
+        Width of bond lines in the rendered molecule.
+    verbose : bool, default=False
+        If True, print status messages during execution.
+
+    Returns
+    -------
+    Optional[str]
+        The output file path if the image was successfully created,
+        or None if the molecule contained no atoms.
+
+    Raises
+    ------
+    ValueError
+        If the provided SMILES string is invalid.
+    """
+
+    # Parse SMILES into an RDKit molecule
     mol = Chem.MolFromSmiles(ismiles)
-    if not mol:
+    if mol is None:
         raise ValueError("Invalid SMILES string")
-    
+
+    # Optionally extract and genericize the Murcko scaffold
     if scaffold_only:
         mol = MurckoScaffold.GetScaffoldForMol(mol)
         mol = MurckoScaffold.MakeScaffoldGeneric(mol)
 
-    # Compute 2D coordinates
+    # Compute 2D coordinates for drawing
     rdDepictor.Compute2DCoords(mol)
-    
+
+    # Abort if molecule has no atoms (can happen for empty scaffolds)
     if mol.GetNumAtoms() == 0:
-        print("Mol atoms: 0")
+        if verbose:
+            print("Mol atoms: 0")
         return None
 
-    # Determine bounds
+    # Determine molecule bounding box from atomic coordinates
     conf = mol.GetConformer()
-    min_x = min([conf.GetAtomPosition(i).x for i in range(mol.GetNumAtoms())])
-    max_x = max([conf.GetAtomPosition(i).x for i in range(mol.GetNumAtoms())])
-    min_y = min([conf.GetAtomPosition(i).y for i in range(mol.GetNumAtoms())])
-    max_y = max([conf.GetAtomPosition(i).y for i in range(mol.GetNumAtoms())])
+    xs = [conf.GetAtomPosition(i).x for i in range(mol.GetNumAtoms())]
+    ys = [conf.GetAtomPosition(i).y for i in range(mol.GetNumAtoms())]
 
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+
+    # Convert coordinate span to pixel dimensions
     width_px = int((max_x - min_x) * increase_factor)
     height_px = int((max_y - min_y) * increase_factor)
 
-    # Draw molecule to SVG
+    # Draw molecule to SVG with transparent background
     drawer = rdMolDraw2D.MolDraw2DSVG(width_px, height_px)
     options = drawer.drawOptions()
     options.bondLineWidth = border_width
-    options.setBackgroundColour((1.0, 1.0, 1.0, 0.0))  # transparent
+    options.setBackgroundColour((1.0, 1.0, 1.0, 0.0))  # RGBA, fully transparent
+
     drawer.DrawMolecule(mol)
     drawer.FinishDrawing()
     svg_data = drawer.GetDrawingText()
 
-    # Remove any rect background in SVG
-    svg_data = svg_data.replace('<rect', '<rect fill="none"')
+    # Remove any SVG <rect> background elements
+    svg_data = svg_data.replace("<rect", '<rect fill="none"')
 
-    # Convert SVG → PNG in memory
-    png_bytes = cairosvg.svg2png(bytestring=svg_data.encode('utf-8'))
+    # Convert SVG to PNG in memory
+    png_bytes = cairosvg.svg2png(bytestring=svg_data.encode("utf-8"))
 
-    # Load PNG in PIL and ensure transparency
+    # Load PNG with PIL and ensure RGBA mode
     image = Image.open(io.BytesIO(png_bytes)).convert("RGBA")
 
-    # Make white pixels fully transparent (optional, in case some remained)
-    datas = image.getdata()
-    newData = []
-    for item in datas:
-        # If pixel is nearly white, make it transparent
-        if item[:3] == (255, 255, 255):
-            newData.append((255, 255, 255, 0))
+    # Make pure white pixels fully transparent (safety pass)
+    new_pixels = []
+    for pixel in image.getdata():
+        if pixel[:3] == (255, 255, 255):
+            new_pixels.append((255, 255, 255, 0))
         else:
-            newData.append(item)
-    image.putdata(newData)
+            new_pixels.append(pixel)
 
-    # Save the PNG
+    image.putdata(new_pixels)
+
+    # Ensure output directory exists and save image
     os.makedirs(os.path.dirname(fo), exist_ok=True)
     image.save(fo, "PNG")
+
     if verbose:
         print("Saved (transparent):", fo)
+
+    return fo
+
 
 
 def draw_transparent_mol_v2024(ismiles, fo,increase_factor=100,scaffold_only=False,border_width=1):

@@ -1,49 +1,126 @@
 import os
+from typing import Tuple
+
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-def change_color_to_color_np(img, original_color=(0,0,0), replacement_color=(255,255,255), any_color=False):
-    data = np.array(img.convert("RGBA")) # Ensure RGBA for consistency
-    rgb = data[:, :, :3]
-    alpha = data[:, :, 3]
+def change_color_to_color_np(
+    img: Image.Image,
+    original_color: Tuple[int, int, int] = (0, 0, 0),
+    replacement_color: Tuple[int, int, int] = (255, 255, 255),
+    any_color: bool = False
+) -> Image.Image:
+    """
+    Replace a specific RGB color (or any non-transparent color) in an image.
+
+    The operation is performed using NumPy for fast pixel-wise manipulation.
+    Transparency (alpha channel) is preserved.
+
+    Parameters
+    ----------
+    img : PIL.Image.Image
+        Input image to process.
+    original_color : Tuple[int, int, int], optional
+        RGB color to replace. Ignored if `any_color=True`.
+    replacement_color : Tuple[int, int, int], optional
+        RGB color to apply where the mask matches.
+    any_color : bool, optional
+        If True, replace all non-transparent pixels regardless of color.
+
+    Returns
+    -------
+    PIL.Image.Image
+        A new image with the color replacements applied.
+    """
+    # Convert image to RGBA to ensure alpha channel exists
+    data: np.ndarray = np.array(img.convert("RGBA"))
+
+    # Separate RGB and alpha channels
+    rgb: np.ndarray = data[:, :, :3]
+    alpha: np.ndarray = data[:, :, 3]
+
+    # Build mask:
+    # - any_color=True: replace all pixels with alpha > 0
+    # - otherwise: replace only pixels matching original_color and alpha > 0
     if any_color:
-        mask = alpha > 0
+        mask: np.ndarray = alpha > 0
     else:
         mask = np.all(rgb == original_color, axis=-1) & (alpha > 0)
+
+    # Apply replacement color to masked pixels
     data[mask, :3] = replacement_color
+
     return Image.fromarray(data)
 
-def change_color_to_color_fast(input_path, output_path, 
-                               original_color=(0,0,0), replacement_color=(255,255,255),any_color=False):
-    # 1. Determine if we are processing a single file or a directory
+
+def change_color_to_color_fast(
+    input_path: str,
+    output_path: str,
+    original_color: Tuple[int, int, int] = (0, 0, 0),
+    replacement_color: Tuple[int, int, int] = (255, 255, 255),
+    any_color: bool = False
+) -> None:
+    """
+    Apply color replacement to a single image or all images in a directory.
+
+    Supported image formats: PNG, JPG, JPEG, WEBP.
+
+    Parameters
+    ----------
+    input_path : str
+        Path to an image file or a directory containing images.
+    output_path : str
+        Destination file path (for single input file) or output directory.
+    original_color : Tuple[int, int, int], optional
+        RGB color to replace. Ignored if `any_color=True`.
+    replacement_color : Tuple[int, int, int], optional
+        RGB color to apply where the mask matches.
+    any_color : bool, optional
+        If True, replace all non-transparent pixels regardless of color.
+
+    Returns
+    -------
+    None
+    """
+    # Determine if input is a single file or a directory
     if os.path.isfile(input_path):
         files_to_process = [input_path]
         is_single_file = True
     elif os.path.isdir(input_path):
-        files_to_process = [os.path.join(input_path, f) for f in os.listdir(input_path) 
-                            if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
+        files_to_process = [
+            os.path.join(input_path, f)
+            for f in os.listdir(input_path)
+            if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
+        ]
         is_single_file = False
     else:
         print(f"Error: {input_path} is neither a file nor a directory.")
         return
 
-    # 2. Process Files
+    # Process images with progress bar
     for file_path in tqdm(files_to_process, desc="Processing images"):
-        img = Image.open(file_path)
-        new_img = change_color_to_color_np(img, original_color=original_color, replacement_color=replacement_color, any_color=any_color)
-        # Determine destination
+        img: Image.Image = Image.open(file_path)
+
+        new_img: Image.Image = change_color_to_color_np(
+            img,
+            original_color=original_color,
+            replacement_color=replacement_color,
+            any_color=any_color
+        )
+
+        # Determine save path
         if is_single_file:
-            # If output_path is a directory, keep original filename; else use output_path as filename
-            if os.path.isdir(output_path) or output_path.endswith('/') or output_path.endswith('\\'):
+            # If output_path is a directory, keep original filename
+            if os.path.isdir(output_path) or output_path.endswith(('/', '\\')):
                 os.makedirs(output_path, exist_ok=True)
                 save_path = os.path.join(output_path, os.path.basename(file_path))
             else:
-                # Ensure the parent directory of the target file exists
+                # output_path is treated as a file path
                 os.makedirs(os.path.dirname(output_path), exist_ok=True)
                 save_path = output_path
         else:
-            # For directories, output_path is always treated as a folder
+            # Directory input always writes to output directory
             os.makedirs(output_path, exist_ok=True)
             save_path = os.path.join(output_path, os.path.basename(file_path))
 
