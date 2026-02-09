@@ -42,4 +42,4 @@ pip install chemimg
 ```
 
 ## Usage  
-Check **demo.ipynb** for examples.
+Check [**demo.ipynb**](https://github.com/bsaldivaremc2/chemimg/blob/main/demo.ipynb) for examples.
