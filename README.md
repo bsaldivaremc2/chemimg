@@ -19,26 +19,29 @@ It comes with 4 main core attributes.
 
 This project relies on RDKit and Cairo, which are best installed via conda.
 
-### With conda
-
-```bash
-conda env create -f environment.yml  
-conda activate chemimg310
-pip install .
-```
-### Other ways   
 **Cairo must be installed separately.**  
-#### System Requirements (Required for CairoSVG)
+System Requirements (Required for CairoSVG)  
 - **Windows**: Install the [GTK Runtime](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases).  
 - **macOS**: `brew install cairo`  
 - **Linux**: `sudo apt-get install libcairo2`  
 
-```bash
-pip install git+https://github.com/bsaldivaremc2/chemimg.git
-```
 ### Install from PyPI
 ```bash
 pip install chemimg
+```
+
+### With conda
+
+```bash
+git clone https://github.com/bsaldivaremc2/chemimg
+cd chemimg
+conda env create -f environment.yml  
+conda activate chemimg310
+pip install .
+```
+**OR**  
+```bash
+pip install git+https://github.com/bsaldivaremc2/chemimg.git
 ```
 
 ## Usage  
@@ -137,10 +140,10 @@ chemimg.imgproc.demo.show_images_grid(
 ### Make a collage/background cover
 for the listed 20 molecules create their 2d representations as:
 
-- Normal molecules\
-- Scaffolds only\
-- Normal molecules but blue\
-- Scaffolds only but red
+- Normal molecules  
+- Scaffolds only  
+- Normal molecules but blue  
+- Scaffolds only but red  
 
 ``` python
 # A collection of 20 diverse SMILES strings 
@@ -191,11 +194,11 @@ chemimg.imgproc.colors.change_color_to_color_fast(input_path, output_path,
 
 ##### Create 4 collage images
 
-- Normal molecules\
-- Scaffolds only\
-- Normal molecules but blue\
-- Scaffolds only but red
-:::
+- Normal molecules  
+- Scaffolds only  
+- Normal molecules but blue  
+- Scaffolds only but red  
+
 
 ``` python
 folder_paths = ["imgs/imgs4collage/", "imgs/imgs4collageScaffold/", "imgs/imgs4collageBlue/", "imgs/imgs4collageScaffoldRed/"]
