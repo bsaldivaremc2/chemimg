@@ -64,7 +64,9 @@ def create_collage_randomNoCollapse(output_size, folder_path, max_time_seconds=1
             if min_scale_factor != -1 and max_scale_factor != -1:
                 scale_factor = random.uniform(min_scale_factor, max_scale_factor)
                 new_size = (int(img.width * scale_factor), int(img.height * scale_factor))
-                img = img.resize(new_size, Image.ANTIALIAS)
+                #img = img.resize(new_size, Image.ANTIALIAS)
+                img = img.resize(new_size, resample=Image.Resampling.LANCZOS)
+
             else:
                 scale_factor = 1
                 new_size = (int(img.width * scale_factor), int(img.height * scale_factor))
