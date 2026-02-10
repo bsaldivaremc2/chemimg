@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chemimg"
-version = "2026.02.08"
+version = "2026.02.10"
 description = "Draw 2d molecule representation easily. Change colors, increase size, make a background cover"
 readme = "README.md"
 requires-python = ">=3.8"
