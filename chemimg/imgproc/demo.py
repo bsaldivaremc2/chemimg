@@ -8,15 +8,42 @@ import math
 def show_images_grid(
     image_paths,
     input_ratio=(1, 2),
-    figsize_factor=3.0
+    figsize_factor=3.0,
+    save_path=None,
+    transparent=True,
+    show_titles=True,
+    dpi=300,
+    change_title_func=None,
+    show_plot=True
 ):
     """
     image_paths : list of str
         Paths to images to load
+
     input_ratio : tuple (rows, cols)
         Desired layout ratio (e.g. (1,2), (2,2))
+
     figsize_factor : float
         Size multiplier per subplot
+
+    save_path : str or None
+        If provided, saves figure to this path.
+        Creates directory if it does not exist.
+
+    transparent : bool
+        If True, saves figure with transparent background.
+
+    show_titles : bool
+        Whether to show image titles.
+
+    dpi : int
+        DPI for saved figure.
+
+    change_title_func : callable or None
+        Function applied to each title string.
+        Example: lambda s: s.replace("_", " ").upper()
+    show_plot : bool
+        Whether to display the plot after creation.
     """
 
     n_images = len(image_paths)
@@ -24,23 +51,22 @@ def show_images_grid(
 
     # --- determine grid layout ---
     if r == c:
-        # make it as square as possible
         cols = int(math.ceil(math.sqrt(n_images)))
         rows = int(math.ceil(float(n_images) / cols))
     else:
-        # keep ratio, scale grid until it fits all images
-        scale = math.ceil(
-            max(float(n_images) / (r * c), 1)
-        )
+        scale = math.ceil(max(float(n_images) / (r * c), 1))
         rows = int(r * scale)
         cols = int(c * scale)
 
-    # --- compute figsize ---
     figsize = (cols * figsize_factor, rows * figsize_factor)
 
     fig, axes = plt.subplots(rows, cols, figsize=figsize)
 
-    # Make axes iterable in all cases
+    # Transparent background in display
+    if transparent:
+        fig.patch.set_alpha(0)
+
+    # Make axes iterable
     if rows * cols == 1:
         axes = [axes]
     else:
@@ -55,13 +81,36 @@ def show_images_grid(
             ax.imshow(img)
             ax.axis("off")
 
-            # title = filename
-            ax.set_title(os.path.basename(img_path), fontsize=9)
+            if show_titles:
+                title = os.path.basename(img_path)
+
+                if change_title_func is not None:
+                    title = change_title_func(title)
+
+                ax.set_title(title, fontsize=9)
         else:
             ax.axis("off")
 
     plt.tight_layout()
-    plt.show()
+
+    # --- save if requested ---
+    if save_path is not None:
+        save_dir = os.path.dirname(save_path)
+
+        if save_dir and not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
+
+        plt.savefig(
+            save_path,
+            dpi=dpi,
+            transparent=transparent,
+            bbox_inches="tight"
+        )
+
+    if show_plot:
+        plt.show()
+    else:
+        plt.close(fig)
 
 
 def generate_grid(ismiles, out_dir, border_widths, scales, scaffold_only=False, prefix="mol"):
