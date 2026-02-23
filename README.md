@@ -19,26 +19,29 @@ It comes with 4 main core attributes.
 
 This project relies on RDKit and Cairo, which are best installed via conda.
 
-### With conda
-
-```bash
-conda env create -f environment.yml  
-conda activate chemimg310
-pip install .
-```
-### Other ways   
 **Cairo must be installed separately.**  
-#### System Requirements (Required for CairoSVG)
+System Requirements (Required for CairoSVG)  
 - **Windows**: Install the [GTK Runtime](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases).  
 - **macOS**: `brew install cairo`  
 - **Linux**: `sudo apt-get install libcairo2`  
 
-```bash
-pip install git+https://github.com/bsaldivaremc2/chemimg.git
-```
 ### Install from PyPI
 ```bash
 pip install chemimg
+```
+
+### With conda
+
+```bash
+git clone https://github.com/bsaldivaremc2/chemimg
+cd chemimg
+conda env create -f environment.yml  
+conda activate chemimg310
+pip install .
+```
+**OR**  
+```bash
+pip install git+https://github.com/bsaldivaremc2/chemimg.git
 ```
 
 ## Usage  
@@ -64,12 +67,6 @@ fo2 = "imgs/demo_scaffold.png"
 scaffold_only = True
 chemimg.chem.scaffolds.draw_transparent_mol(ismiles, fo2,increase_factor=100,scaffold_only=scaffold_only,border_width=1)
 
-image_paths = [fo1, fo2]
-chemimg.imgproc.demo.show_images_grid(
-    image_paths,
-    input_ratio=(1, 2),
-    figsize_factor=3.0
-)
 ```
 ![](imgs/demo.png)
 ![](imgs/demo_scaffold.png)
@@ -85,26 +82,11 @@ prefix = "mol"
 mol_grid = chemimg.imgproc.demo.generate_grid(ismiles, output_dir, border_widths, scales, scaffold_only=False, prefix=prefix)
 #mol_grid.show() #Open the image in the default image viewer
 
-fo1=f"imgs/{prefix}_grid.png"
-image_paths = [fo1]
-chemimg.imgproc.demo.show_images_grid(
-    image_paths,
-    input_ratio=(1, 1),
-    figsize_factor=6.0
-)
-
 # Scaffold grid
 prefix = "scaffold"
 scaffold_grid = chemimg.imgproc.demo.generate_grid(ismiles, output_dir, border_widths, scales, scaffold_only=True, prefix=prefix)
 #scaffold_grid.show() #Open the image in the default image viewer
 
-fo2=f"imgs/{prefix}_grid.png"
-image_paths = [fo2]
-chemimg.imgproc.demo.show_images_grid(
-    image_paths,
-    input_ratio=(1, 1),
-    figsize_factor=3.0
-)
 ```
 ![](imgs/mol_grid.png)
 ![](imgs/scaffold_grid.png)
@@ -122,14 +104,6 @@ new_fname = fname.replace(".png","_allblue.png")
 output_path=f"imgs/{new_fname}"
 chemimg.imgproc.colors.change_color_to_color_fast(input_path, output_path, 
                                original_color=(0,0,0), replacement_color=(0,0,255),any_color=True)
-nf2 = output_path
-
-image_paths = [nf1,nf2]
-chemimg.imgproc.demo.show_images_grid(
-    image_paths,
-    input_ratio=(1, 2),
-    figsize_factor=5.0
-)
 ```
 ![](imgs/mol_bw5_scale150_blue.png)
 ![](imgs/mol_bw5_scale150_allblue.png)
@@ -137,10 +111,10 @@ chemimg.imgproc.demo.show_images_grid(
 ### Make a collage/background cover
 for the listed 20 molecules create their 2d representations as:
 
-- Normal molecules\
-- Scaffolds only\
-- Normal molecules but blue\
-- Scaffolds only but red
+- Normal molecules  
+- Scaffolds only  
+- Normal molecules but blue  
+- Scaffolds only but red  
 
 ``` python
 # A collection of 20 diverse SMILES strings 
@@ -191,11 +165,11 @@ chemimg.imgproc.colors.change_color_to_color_fast(input_path, output_path,
 
 ##### Create 4 collage images
 
-- Normal molecules\
-- Scaffolds only\
-- Normal molecules but blue\
-- Scaffolds only but red
-:::
+- Normal molecules  
+- Scaffolds only  
+- Normal molecules but blue  
+- Scaffolds only but red  
+
 
 ``` python
 folder_paths = ["imgs/imgs4collage/", "imgs/imgs4collageScaffold/", "imgs/imgs4collageBlue/", "imgs/imgs4collageScaffoldRed/"]
@@ -205,20 +179,6 @@ for folder_path, output_file in zip(folder_paths, output_files):
                                                             max_time_seconds=10, max_images=1000,
                        output_file=output_file, min_scale_factor=-1, max_scale_factor=-1,
                        lower_alpha=0.5, upper_alpha=1.0,rotate_only_if_vertical=False)
-```
-
-#### Visualize all together
-
-``` python
-c1="imgs/collage_simple.png"
-c2="imgs/collage_scaffold.png"
-c3="imgs/collage_simple_blue.png"
-c4="imgs/collage_scaffold_red.png"
-chemimg.imgproc.demo.show_images_grid(
-    [c1,c2,c3,c4],
-    input_ratio=(2, 2),
-    figsize_factor=5.0
-)
 ```
 ![](imgs/collage_simple.png)
 ![](imgs/collage_scaffold.png)
